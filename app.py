@@ -16,19 +16,27 @@ def load_income():
 df = load_income()
 st.write("Columns in uploaded dataset:", df.columns.tolist())
 
+# ✅ ustaw nazwę kolumny celu
+target_col = "income >50K"
+
+# ✅ upewnij się że kolumna celu jest typu string
+df[target_col] = df[target_col].astype(str)
 # ---------------------- TRAIN MODEL IF NOT EXISTS ----------------------
 if "exp" not in st.session_state or "model" not in st.session_state:
     with st.spinner("Trenowanie modelu..."):
         exp = ClassificationExperiment()
-        exp.setup(data=df, target="class", session_id=42, verbose=False)
+        exp.setup(
+            data=df,
+            target=target_col,
+            session_id=42,
+            verbose=False
+        )
 
         best_model = exp.compare_models()
         final_model = exp.finalize_model(best_model)
 
         st.session_state["exp"] = exp
         st.session_state["model"] = final_model
-
-    st.success("✅ Model wytrenowany na datasetcie 'income'!")
 
 exp = st.session_state["exp"]
 model = st.session_state["model"]
