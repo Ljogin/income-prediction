@@ -19,7 +19,7 @@ df = load_income()
 if "exp" not in st.session_state or "model" not in st.session_state:
     with st.spinner("Trenowanie modelu..."):
         exp = ClassificationExperiment()
-        exp.setup(data=df, target="income", session_id=42, verbose=False)
+        exp.setup(data=df, target="class", session_id=42, verbose=False)
 
         best_model = exp.compare_models()
         final_model = exp.finalize_model(best_model)
