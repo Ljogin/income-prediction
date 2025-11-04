@@ -6,34 +6,34 @@ from pycaret.datasets import get_data
 st.set_page_config(page_title="Predykcja dochodu >50K", layout="centered")
 
 st.title("🏦 Predykcja dochodu > 50K USD rocznie")
-st.write("Model zostal wytrenowany automatycznie na datasetcie 'income'. Podaj dane ponizej aby otrzymac predykcje.")
+st.write("Model jest trenowany na wbudowanym datasetcie 'income'. Podaj dane, aby otrzymac predykcje.")
 
-# ---------------------- LOAD INCOME DATASET ----------------------
-@st.cache_resource
-def train_model():
-    df = get_data("income", verbose=False)
+# ---------------------- LOAD DATA (cache ok) ----------------------
+@st.cache_data
+def load_income():
+    return get_data("income", verbose=False)
 
-    exp = ClassificationExperiment()
-    exp.setup(
-        data=df,
-        target="income",
-        session_id=42,
-        verbose=False,
-        silent=True,
-    )
+df = load_income()
 
-    best_model = exp.compare_models()
-    final_model = exp.finalize_model(best_model)
+# ---------------------- TRAIN MODEL IF NOT EXISTS ----------------------
+if "exp" not in st.session_state or "model" not in st.session_state:
+    with st.spinner("Trenowanie modelu..."):
+        exp = ClassificationExperiment()
+        exp.setup(data=df, target="income", session_id=42, verbose=False, silent=True)
 
-    # Save columns for input form
-    return exp, final_model, df
+        best_model = exp.compare_models()
+        final_model = exp.finalize_model(best_model)
 
-exp, model, df = train_model()
+        st.session_state["exp"] = exp
+        st.session_state["model"] = final_model
 
-st.success("✅ Model zostal wytrenowany na datasetcie 'income'.")
+    st.success("✅ Model wytrenowany na datasetcie 'income'!")
 
-# ---------------------- SHOW FEATURE IMPORTANCE ----------------------
-fi = exp.pull()  # feature importance table
+exp = st.session_state["exp"]
+model = st.session_state["model"]
+
+# ---------------------- FEATURE IMPORTANCE ----------------------
+fi = exp.pull()
 st.subheader("📊 Najwazniejsze cechy modelu")
 st.dataframe(fi)
 
