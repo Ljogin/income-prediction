@@ -14,6 +14,7 @@ def load_income():
     return get_data("income", verbose=False)
 
 df = load_income()
+st.write("Columns in uploaded dataset:", df.columns.tolist())
 
 # ---------------------- TRAIN MODEL IF NOT EXISTS ----------------------
 if "exp" not in st.session_state or "model" not in st.session_state:
